@@ -1,0 +1,14 @@
+* TODO:
+** Need tests for
+- BUF_SIZE(prefix)
+- GET(prefix, value)
+- PEEK(prefix, value)
+- NEXT_IN(prefix)
+- FLUSH(prefix)
+- IS_EMPTY(prefix)
+- IS_NOT_EMPTY(prefix)
+- KBHIT IS_NOT_EMPTY
+- AVAIL IS_NOT_FULL
+** Add MACRO
+- RESET - like flush, but also resets ovfl flag.
+- Get rid of _len variable.
