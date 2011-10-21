@@ -24,18 +24,11 @@
  * @param size - number of elements in the fifo.
  */
 #define MAKE_FIFO(prefix, size)			\
-char prefix ##_buffer[size];\
+char prefix ##_buffer[size+1];\
 long prefix ##_next_in  = 0;\
 long prefix ##_next_out = 0;\
+long prefix ##_len = 0;                   \
 long prefix ##_ovfl=0;
-
-/**
- * Get size of FIFO.
- *
- *
- * @param name of the fifo
- * @return size of the buffer
- */
 
 #define BUF_SIZE(prefix) (sizeof(prefix ##_buffer))
 
@@ -49,7 +42,8 @@ long prefix ##_ovfl=0;
  */
 #define GET(prefix, value) { \
  value=prefix ##_buffer[prefix ##_next_out]; \
- prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
+ prefix ##_len--; \
+prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
 
 /**
  * Get an element from the FIFO without removing it.
@@ -68,6 +62,7 @@ long prefix ##_ovfl=0;
  * @param name of the fifo
  */
 #define REMOVE(prefix) { \
+  prefix ##_len--; \
  prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
 
 /**
@@ -76,7 +71,7 @@ long prefix ##_ovfl=0;
  * NOTICE: This is the only macro meant for internal use, and not the
  *         application programmer.
  */
-#define NEXT_IN(prefix) ((prefix ##_next_in + 1) % sizeof( prefix ##_buffer ))
+#define NEXT_IN(prefix) ((prefix ##_next_in + 1) % BUF_SIZE( prefix ))
 
 /**
  * Put an element into the FIFO.
@@ -84,10 +79,11 @@ long prefix ##_ovfl=0;
  * @param name of the fifo
  * @param Value of the new element.
  */
-#define PUT(prefix, value) { int8 t; \
+#define PUT(prefix, value) { char t; \
+     prefix ##_len++; \
   prefix ##_buffer[ prefix ##_next_in ] = value; \
   t = prefix ##_next_in; \
-  prefix ##_next_in = ( prefix ##_next_in + 1) % sizeof( prefix ##_buffer ); \
+  prefix ##_next_in = ( prefix ##_next_in + 1) % BUF_SIZE( prefix ); \
   if(prefix ##_next_in == prefix ##_next_out) {				\
      prefix ##_next_in = t; \
      prefix ##_ovfl = 1; }}
@@ -138,7 +134,14 @@ long prefix ##_ovfl=0;
  * @param FIFO name
  * @return TRUE/FALSE
  */
-#define IS_FULL(prefix)  (NEXT_IN(prefix) == prefix ##_next_out)
+#define IS_FULL(prefix)  (prefix ##_len == BUF_SIZE(prefix)-1 )
+
+#define DEPTH(prefix)  (prefix ##_len)
+/*> prefix ##_next_out ?                                                \
+                       prefix ##_next_in - prefix ##_next_out  :\
+                       prefix ##_next_out - prefix ##_next_in   )
+*/
+#define FREE(prefix) (BUF_SIZE(prefix) - DEPTH(prefix) -1)
 
 /**
  * Is there free space?
@@ -147,7 +150,7 @@ long prefix ##_ovfl=0;
  * @param FIFO name
  * @return TRUE/FALSE
  */
-#define IS_NOT_FULL(prefix) (prefix ##_next_in>prefix ##_next_out?prefix ##_next_in-prefix ##_next_out:(prefix ##_next_in+BUF_SIZE(prefix) - prefix ##_next_out))
+#define IS_NOT_FULL(prefix) (prefix ##_len < BUF_SIZE(prefix))
 
 /**
  * Is there free space?
@@ -158,3 +161,5 @@ long prefix ##_ovfl=0;
  * @return TRUE/FALSE
  */
 #define AVAIL IS_NOT_FULL
+
+#define OVFL(prefix) (prefix ##_ovfl)
