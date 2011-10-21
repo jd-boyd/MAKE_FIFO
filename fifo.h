@@ -150,7 +150,7 @@ prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
  * @param FIFO name
  * @return TRUE/FALSE
  */
-#define IS_NOT_FULL(prefix) (prefix ##_len < BUF_SIZE(prefix))
+#define IS_NOT_FULL(prefix) (!IS_FULL(prefix))
 
 /**
  * Is there free space?
