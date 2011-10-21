@@ -1,3 +1,40 @@
+* About
+  I was recently reviewing some FIFO based serial TX/RX circular
+  buffer code that I thought was buggy in the FIFO part.  Since the
+  FIFO was entwined with the ISRs, it was hard to test in isolation.
+  I looked around at some other FIFO implementations for PIC and AVR,
+  and all of them did the same thing, including duplicated all of the
+  FIFO code for every serial port implemented.  It seemed to me that
+  it would be better to have the two activities separated to provide
+  better re-usability and test-ability.
+
+  Back when I was working on PCI audio drivers, I thought the same
+  thing.  Everyone wrote their sample FIFOs directly into the ISR
+  functions in the driver.  Back then, I seperated my FIFO out into a
+  separate reusable module that could be tested thoroughly from user
+  land.  I grabbed that to use on my current project, but it depended
+  on malloc and free, something notably missing on a lot of 8 bit
+  micro controllers.  Also, it would result in extra function call
+  overhead, which is not good in ISRs on PICs (very limited hardware
+  call stack).
+
+  Anyway, after debugging the FIFO in my ISRs, I decided to extract it
+  all out into a file of just that code. Then I transformed those
+  functions into macros to do away with the function call overhead.
+  
+  Here is draft 1, if it is of any use to anyone, and even if it isn't I
+  certainly wouldn't mind review/commentary.
+  
+  I could wrap the globals into a struct, but then I still would need a
+  custom struct for each instance to change the size of the array at run
+  time, unless I required a global struct, and MAKE_FIFO inserted a
+  pointer to a global array...
+  
+  I'm not sure, which might be better.
+  
+  Also, if you were to need 32bit elements instead of 8 bit elements,
+  just change the type in MAKE_FIFO.
+  
 * TODO:
 ** Need tests for
 - BUF_SIZE(prefix)
@@ -12,3 +49,5 @@
 ** Add MACRO
 - RESET - like flush, but also resets ovfl flag.
 - Get rid of _len variable.
+** Make element size/type configurable
+   Add an argument to MAKE_FIFO of type.
