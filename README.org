@@ -34,7 +34,6 @@
   
   Also, if you were to need 32bit elements instead of 8 bit elements,
   just change the type in MAKE_FIFO.
-  
 * TODO:
 ** Need tests for
 - BUF_SIZE(prefix)
