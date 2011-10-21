@@ -30,6 +30,16 @@ long prefix ##_next_out = 0;\
 long prefix ##_ovfl=0;
 
 /**
+ * Get size of FIFO.
+ *
+ *
+ * @param name of the fifo
+ * @return size of the buffer
+ */
+
+#define BUF_SIZE(prefix) (sizeof(prefix ##_buffer))
+
+/**
  * Get and remove an element from the FIFO.
  *
  * Value here works a little like a reference in C++.  
@@ -39,7 +49,7 @@ long prefix ##_ovfl=0;
  */
 #define GET(prefix, value) { \
  value=prefix ##_buffer[prefix ##_next_out]; \
- prefix ##_next_out = (prefix ##_next_out+1) % sizeof(prefix ##_buffer);}
+ prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
 
 /**
  * Get an element from the FIFO without removing it.
@@ -58,7 +68,7 @@ long prefix ##_ovfl=0;
  * @param name of the fifo
  */
 #define REMOVE(prefix) { \
- prefix ##_next_out = (prefix ##_next_out+1) % sizeof(prefix ##_buffer);}
+ prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
 
 /**
  * Return the index of the next input location.
@@ -137,7 +147,7 @@ long prefix ##_ovfl=0;
  * @param FIFO name
  * @return TRUE/FALSE
  */
-#define IS_NOT_FULL(prefix) (prefix ##_next_in>prefix ##_next_out?prefix ##_next_in-prefix ##_next_out:(prefix ##_next_in+sizeof(prefix ##_buffer) - prefix ##_next_out))
+#define IS_NOT_FULL(prefix) (prefix ##_next_in>prefix ##_next_out?prefix ##_next_in-prefix ##_next_out:(prefix ##_next_in+BUF_SIZE(prefix) - prefix ##_next_out))
 
 /**
  * Is there free space?
