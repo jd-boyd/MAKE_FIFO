@@ -96,7 +96,7 @@ prefix ##_next_out = (prefix ##_next_out+1) % BUF_SIZE(prefix);}
  *
  * @param Name of the FIFO
  */
-#define FLUSH(prefix) {prefix ##_next_in  = prefix ##_next_out = 0;}
+#define FLUSH(prefix) {prefix ##_len = prefix ##_next_in  = prefix ##_next_out = 0;}
 
 /**
  * Is the FIFO empty? True/False
