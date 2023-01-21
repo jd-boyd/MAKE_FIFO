@@ -58,5 +58,12 @@ int main(void)
   PUT(tf, 5);
   assert(OVFL(tf));
 
+  /* SVP 21JAN2023 */
+  puts("Calling FLUSH(), then testing with DEPTH() and FREE()");
+  FLUSH(tf);
+  assert(IS_EMPTY(tf));
+  assert(DEPTH(tf) == 0);	/* Both of these fail */
+  assert(FREE(tf) == 4);
+
   return 0;
 }
